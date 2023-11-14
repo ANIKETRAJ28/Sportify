@@ -7,9 +7,9 @@ let songProgressBar = document.querySelector(".songSlider input");
 let audioGif = document.querySelectorAll(".songDuration img");
 let songList = Array.from(document.querySelectorAll(".songs"));
 let playAnimation = document.querySelector(".songplay>img");
-
 let audioElement = new Audio("assets/1.mp3");
-audioElement.currentTime;
+let DisplaySongName = document.querySelector(".playingSongName");
+let sliderLine = document.querySelector(".sliderLine");
 
 let songs = [
   {
@@ -64,6 +64,8 @@ let songs = [
   },
 ];
 
+DisplaySongName.innerText = songs[0].songName;
+
 songList.forEach((element, i) => {
   element.querySelector("img").src = songs[i].cover;
   element.querySelector("span").innerText = songs[i].songName;
@@ -99,15 +101,23 @@ function setDefault() {
 }
 
 let index;
+
 songList.forEach((element) => {
-  element.addEventListener("click", (e) => {
-    index = parseInt(e.target.id);
+  element.querySelector(".play").addEventListener("click", (e) => {
+    index = e.target.id;
     audioElement.src = `assets/${index}.mp3`;
-    audioElement.currentTime = 0;
     playAnimation.style.display = "block";
     audioElement.play();
     pause.style.display = "inline";
     play.style.display = "none";
+    DisplaySongName.innerText = element.children[1].innerText;
+  });
+  element.querySelector(".pause").addEventListener("click", (e) => {
+    audioElement.pause();
+    playAnimation.style.display = "none";
+    pause.style.display = "none";
+    play.style.display = "inline";
+    setDefault();
   });
 });
 
@@ -128,10 +138,10 @@ audioControl.addEventListener("click", () => {
 
 left.addEventListener("click", () => {
   if (index === undefined) index = 1;
-  else if (index === 1) index = 10;
+  else if (index <= 1) index = 10;
   else index--;
   audioElement.src = `assets/${index}.mp3`;
-  console.log(index);
+  DisplaySongName.innerText = songs[index - 1].songName;
   audioElement.currentTime = 0;
   audioElement.play();
   pause.style.display = "inline";
@@ -144,10 +154,10 @@ left.addEventListener("click", () => {
 
 right.addEventListener("click", () => {
   if (index === undefined) index = 1;
-  else if (index === 10) index = 1;
+  else if (index >= 10) index = 1;
   else index++;
   audioElement.src = `assets/${index}.mp3`;
-  console.log(index);
+  DisplaySongName.innerText = songs[index - 1].songName;
   audioElement.currentTime = 0;
   audioElement.play();
   pause.style.display = "inline";
@@ -163,9 +173,11 @@ audioElement.addEventListener("timeupdate", () => {
     (audioElement.currentTime / audioElement.duration) * 100
   );
   songProgressBar.value = songTiming;
+  sliderLine.style.width = songTiming + "%";
 });
 
 songProgressBar.addEventListener("change", () => {
   let val = songProgressBar.value;
+  sliderLine.style.width = val - 1.2 + "%";
   audioElement.currentTime = (val * audioElement.duration) / 100;
 });
